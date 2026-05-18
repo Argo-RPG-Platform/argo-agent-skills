@@ -1,0 +1,13 @@
+{
+  "name": "argo-gm-pack",
+  "version": "0.1.0",
+  "description": "GM workflows for the Argo MCP: session prep, recap, NPC generation, and MCP setup.",
+  "author": {
+    "name": "Argo RPG Platform",
+    "url": "https://argo.games"
+  },
+  "homepage": "https://github.com/Argo-RPG-Platform/argo-claude-skills",
+  "repository": "https://github.com/Argo-RPG-Platform/argo-claude-skills",
+  "license": "MIT",
+  "keywords": ["argo", "ttrpg", "vtt", "gm", "mcp"]
+}
