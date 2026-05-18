@@ -59,7 +59,7 @@ The `agents/openai.yaml` files are checked in and released alongside each skill 
 
 ## Contributing
 
-PRs are welcome from the community; merges to `main` are gated on the `ArgoDev` team. See [CONTRIBUTING.md](#) (TBD).
+PRs are welcome from the community; merges to `main` are gated on the `ArgoDev` team. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the repo layout, how to author a new skill, and the release process.
 
 ## License
 

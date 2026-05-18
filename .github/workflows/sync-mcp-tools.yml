@@ -1,0 +1,58 @@
+name: Sync MCP tools allowlist
+
+on:
+  schedule:
+    # Weekly: Monday 06:00 UTC
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Checkout Argo-RPG-Platform/MCP
+        uses: actions/checkout@v4
+        with:
+          repository: Argo-RPG-Platform/MCP
+          path: mcp-upstream
+          # Public repo — no token needed; default GITHUB_TOKEN works for cross-repo public reads.
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Regenerate allowlist
+        run: node scripts/sync-mcp-tools.mjs mcp-upstream
+
+      - name: Re-run validator against new allowlist
+        run: npm run validate
+
+      - name: Open PR if allowlist drifted
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: sync MCP tools allowlist from Argo-RPG-Platform/MCP"
+          branch: chore/sync-mcp-tools
+          delete-branch: true
+          title: "chore: sync MCP tools allowlist from Argo-RPG-Platform/MCP"
+          body: |
+            Automated update of `scripts/mcp-tools-allowlist.json` from the latest `Argo-RPG-Platform/MCP` `src/server.ts`.
+
+            - Triggered by the `Sync MCP tools allowlist` workflow.
+            - The validator was re-run against the regenerated allowlist and passed.
+            - If this PR adds or removes tools, take a moment to consider whether any existing skill should reference them, and whether any user-facing docs need updating.
+
+            Merge when ready, or close if the drift is unintended.
+          labels: |
+            automation
+            dependencies
+          # Cleanup will skip the workflow if there is no diff.
