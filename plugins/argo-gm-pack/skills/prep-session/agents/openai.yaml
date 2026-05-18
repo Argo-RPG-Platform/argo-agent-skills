@@ -1,0 +1,12 @@
+interface:
+  display_name: "Prep Session"
+  short_description: "Create a fast, high-signal Argo session prep brief for a GM"
+  default_prompt: "Use $prep-session to prepare my next Argo session from the current campaign state."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "argo"
+      description: "Argo MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.argo.games/mcp"
