@@ -1,8 +1,8 @@
-# Argo Claude Skills
+# Argo Agent Skills
 
-Claude skills and plugin marketplace for the [Argo RPG Platform](https://argo.games) — workflows that orchestrate the [Argo MCP server](https://github.com/Argo-RPG-Platform/MCP) into high-frequency Game Master tasks.
+Agent skills and plugin marketplace for the [Argo RPG Platform](https://argo.games) — workflows that orchestrate the [Argo MCP server](https://github.com/Argo-RPG-Platform/MCP) into high-frequency Game Master tasks.
 
-Skills are an Anthropic concept and work in both **Claude Code** (CLI/IDE) and **Claude.ai** (web/desktop chat).
+Skills are an Anthropic concept (current name: Agent Skills) and work in both **Claude Code** (CLI/IDE) and **Claude.ai** (web/desktop chat).
 
 ## Skills in the `argo-gm-pack` plugin
 
@@ -18,7 +18,7 @@ Skills are an Anthropic concept and work in both **Claude Code** (CLI/IDE) and *
 ### Claude Code
 
 ```
-/plugin marketplace add Argo-RPG-Platform/argo-claude-skills
+/plugin marketplace add Argo-RPG-Platform/argo-agent-skills
 /plugin install argo-gm-pack@argo
 ```
 
@@ -26,7 +26,7 @@ Then run the `install-argo-mcp` skill once (just describe what you want — e.g.
 
 ### Claude.ai (web/desktop)
 
-1. Open the [latest release](https://github.com/Argo-RPG-Platform/argo-claude-skills/releases/latest).
+1. Open the [latest release](https://github.com/Argo-RPG-Platform/argo-agent-skills/releases/latest).
 2. Download `argo-gm-pack-vX.Y.Z.zip`.
 3. In Claude.ai: **Settings → Capabilities → Skills → Upload**, and upload each skill folder from the zip.
 4. Add the Argo MCP as a connector via **Settings → Connectors → Add custom connector**, URL `https://mcp.argo.games/mcp`.

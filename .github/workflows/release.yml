@@ -37,6 +37,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: argo-claude-skills ${{ github.ref_name }}
+          name: argo-agent-skills ${{ github.ref_name }}
           generate_release_notes: true
           files: dist/*.zip
