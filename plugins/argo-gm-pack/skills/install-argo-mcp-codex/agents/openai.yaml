@@ -1,0 +1,12 @@
+interface:
+  display_name: "Install Argo MCP (Codex/ChatGPT)"
+  short_description: "Connect Argo MCP in Codex or ChatGPT and verify campaign access"
+  default_prompt: "Use $install-argo-mcp-codex to connect the hosted Argo MCP server to my Codex or ChatGPT client and verify campaign access."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "argo"
+      description: "Argo MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.argo.games/mcp"

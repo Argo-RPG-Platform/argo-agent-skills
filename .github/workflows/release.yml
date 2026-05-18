@@ -24,23 +24,43 @@ jobs:
       - name: Package Claude and OpenAI artifacts
         run: |
           set -euo pipefail
-          mkdir -p dist/claude/per-skill dist/openai/per-skill dist/openai/pack/argo-gm-pack
+          VERSION="${{ steps.ver.outputs.version }}"
           PACK=plugins/argo-gm-pack
+          mkdir -p dist/claude/per-skill dist/openai/per-skill
+          # Staging trees containing only the skills selected for each target.
+          CLAUDE_STAGE="dist/.stage/claude/argo-gm-pack"
+          OPENAI_STAGE="dist/.stage/openai/argo-gm-pack"
+          mkdir -p "$CLAUDE_STAGE/skills" "$OPENAI_STAGE/skills"
+          # Claude stage needs the plugin manifest too.
+          cp -R "$PACK/.claude-plugin" "$CLAUDE_STAGE/"
 
-          # Claude upload artifacts: one zip per skill and one full plugin pack.
+          # Per-skill packaging based on opt-in markers.
+          #   .claude-disabled present  -> skip Claude
+          #   agents/openai.yaml present -> include in OpenAI
           for skill in "$PACK"/skills/*/; do
             name=$(basename "$skill")
-            (cd "$skill/.." && zip -r "$GITHUB_WORKSPACE/dist/claude/per-skill/${name}-claude-v${{ steps.ver.outputs.version }}.zip" "$name")
-          done
-          (cd plugins && zip -r "$GITHUB_WORKSPACE/dist/claude/argo-gm-pack-claude-v${{ steps.ver.outputs.version }}.zip" argo-gm-pack)
+            claude_enabled=true
+            openai_enabled=false
+            [ -f "$skill/.claude-disabled" ] && claude_enabled=false
+            [ -f "$skill/agents/openai.yaml" ] && openai_enabled=true
 
-          # OpenAI/Codex artifacts: per skill bundle and one combined skills pack.
-          cp -R "$PACK/skills" dist/openai/pack/argo-gm-pack/
-          for skill in "$PACK"/skills/*/; do
-            name=$(basename "$skill")
-            (cd "$skill/.." && zip -r "$GITHUB_WORKSPACE/dist/openai/per-skill/${name}-openai-v${{ steps.ver.outputs.version }}.zip" "$name")
+            if [ "$claude_enabled" = true ]; then
+              cp -R "$skill" "$CLAUDE_STAGE/skills/$name"
+              (cd "$skill/.." && zip -r "$GITHUB_WORKSPACE/dist/claude/per-skill/${name}-claude-v${VERSION}.zip" "$name")
+            fi
+            if [ "$openai_enabled" = true ]; then
+              cp -R "$skill" "$OPENAI_STAGE/skills/$name"
+              (cd "$skill/.." && zip -r "$GITHUB_WORKSPACE/dist/openai/per-skill/${name}-openai-v${VERSION}.zip" "$name")
+            fi
           done
-          (cd dist/openai/pack && zip -r "$GITHUB_WORKSPACE/dist/openai/argo-gm-pack-openai-v${{ steps.ver.outputs.version }}.zip" argo-gm-pack)
+
+          # Combined packs (skip the pack zip if no skills opted in for that target).
+          if [ -n "$(ls -A "$CLAUDE_STAGE/skills" 2>/dev/null)" ]; then
+            (cd "$(dirname "$CLAUDE_STAGE")" && zip -r "$GITHUB_WORKSPACE/dist/claude/argo-gm-pack-claude-v${VERSION}.zip" argo-gm-pack)
+          fi
+          if [ -n "$(ls -A "$OPENAI_STAGE/skills" 2>/dev/null)" ]; then
+            (cd "$(dirname "$OPENAI_STAGE")" && zip -r "$GITHUB_WORKSPACE/dist/openai/argo-gm-pack-openai-v${VERSION}.zip" argo-gm-pack)
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
