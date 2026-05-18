@@ -21,22 +21,34 @@ jobs:
       - name: Validate skills
         run: node scripts/validate-skills.mjs
 
-      - name: Zip each skill (for Claude.ai upload) and the full pack
+      - name: Package Claude and OpenAI artifacts
         run: |
           set -euo pipefail
-          mkdir -p dist
+          mkdir -p dist/claude/per-skill dist/openai/per-skill dist/openai/pack/argo-gm-pack
           PACK=plugins/argo-gm-pack
-          # one zip per skill
+
+          # Claude upload artifacts: one zip per skill and one full plugin pack.
           for skill in "$PACK"/skills/*/; do
             name=$(basename "$skill")
-            (cd "$skill/.." && zip -r "$GITHUB_WORKSPACE/dist/${name}-v${{ steps.ver.outputs.version }}.zip" "$name")
+            (cd "$skill/.." && zip -r "$GITHUB_WORKSPACE/dist/claude/per-skill/${name}-claude-v${{ steps.ver.outputs.version }}.zip" "$name")
           done
-          # combined pack zip
-          (cd plugins && zip -r "$GITHUB_WORKSPACE/dist/argo-gm-pack-v${{ steps.ver.outputs.version }}.zip" argo-gm-pack)
+          (cd plugins && zip -r "$GITHUB_WORKSPACE/dist/claude/argo-gm-pack-claude-v${{ steps.ver.outputs.version }}.zip" argo-gm-pack)
+
+          # OpenAI/Codex artifacts: per skill bundle and one combined skills pack.
+          cp -R "$PACK/skills" dist/openai/pack/argo-gm-pack/
+          for skill in "$PACK"/skills/*/; do
+            name=$(basename "$skill")
+            (cd "$skill/.." && zip -r "$GITHUB_WORKSPACE/dist/openai/per-skill/${name}-openai-v${{ steps.ver.outputs.version }}.zip" "$name")
+          done
+          (cd dist/openai/pack && zip -r "$GITHUB_WORKSPACE/dist/openai/argo-gm-pack-openai-v${{ steps.ver.outputs.version }}.zip" argo-gm-pack)
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: argo-agent-skills ${{ github.ref_name }}
           generate_release_notes: true
-          files: dist/*.zip
+          files: |
+            dist/claude/*.zip
+            dist/claude/per-skill/*.zip
+            dist/openai/*.zip
+            dist/openai/per-skill/*.zip
