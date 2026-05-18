@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate skills
+        run: node scripts/validate-skills.mjs
+
+      - name: Zip each skill (for Claude.ai upload) and the full pack
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          PACK=plugins/argo-gm-pack
+          # one zip per skill
+          for skill in "$PACK"/skills/*/; do
+            name=$(basename "$skill")
+            (cd "$skill/.." && zip -r "$GITHUB_WORKSPACE/dist/${name}-v${{ steps.ver.outputs.version }}.zip" "$name")
+          done
+          # combined pack zip
+          (cd plugins && zip -r "$GITHUB_WORKSPACE/dist/argo-gm-pack-v${{ steps.ver.outputs.version }}.zip" argo-gm-pack)
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: argo-claude-skills ${{ github.ref_name }}
+          generate_release_notes: true
+          files: dist/*.zip

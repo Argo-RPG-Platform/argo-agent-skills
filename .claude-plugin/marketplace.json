@@ -1,0 +1,17 @@
+{
+  "name": "argo",
+  "owner": {
+    "name": "Argo RPG Platform",
+    "url": "https://argo.games"
+  },
+  "plugins": [
+    {
+      "name": "argo-gm-pack",
+      "source": "./plugins/argo-gm-pack",
+      "description": "GM workflows for the Argo MCP: session prep, recap, NPC generation, and MCP setup.",
+      "version": "0.1.0",
+      "category": "ttrpg",
+      "tags": ["argo", "ttrpg", "vtt", "gm"]
+    }
+  ]
+}
