@@ -7,11 +7,13 @@
 //   - OpenAI/Codex: opt in by adding `agents/openai.yaml`.
 // A skill that opts out of Claude AND has no openai.yaml ships nowhere and fails validation.
 //
-// No dependencies — runs on plain Node >=20.
+// Dev dep: js-yaml (real YAML parser; tolerates indentation, quoting, comments,
+// reordering, line wraps). Install with `npm ci`.
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import yaml from "js-yaml";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
@@ -37,30 +39,13 @@ function readText(path) {
   }
 }
 
-function parseFrontmatter(text) {
-  const out = {};
-  for (const rawLine of text.split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-    const idx = line.indexOf(":");
-    if (idx < 0) continue;
-    const key = line.slice(0, idx).trim();
-    let value = line.slice(idx + 1).trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1);
-    }
-    out[key] = value;
+function parseYaml(path, text) {
+  try {
+    return yaml.load(text);
+  } catch (e) {
+    fail(path, `invalid YAML: ${e.message}`);
+    return null;
   }
-  return out;
-}
-
-function extractQuotedString(block, key) {
-  const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = block.match(new RegExp(`^\\s{2}${escapedKey}:\\s+"([^"]+)"\\s*$`, "m"));
-  return match?.[1] ?? null;
 }
 
 // 1. Claude marketplace metadata
@@ -146,15 +131,16 @@ for (const pluginDirName of pluginDirs) {
       fail(skillPath, "no YAML frontmatter (--- ... ---) at top");
       continue;
     }
-    const fm = parseFrontmatter(match[1]);
+    const fm = parseYaml(skillPath, match[1]) ?? {};
     const body = match[2];
 
-    if (!fm.name) fail(skillPath, "frontmatter missing 'name'");
+    if (typeof fm.name !== "string" || !fm.name) fail(skillPath, "frontmatter missing 'name'");
     else if (fm.name !== skillDirName) {
       fail(skillPath, `frontmatter 'name' (${fm.name}) must match directory (${skillDirName})`);
     }
-    if (!fm.description) fail(skillPath, "frontmatter missing 'description'");
-    else if (fm.description.length > 1024) {
+    if (typeof fm.description !== "string" || !fm.description) {
+      fail(skillPath, "frontmatter missing 'description'");
+    } else if (fm.description.length > 1024) {
       fail(skillPath, `description too long (${fm.description.length} chars, max 1024)`);
     }
 
@@ -175,28 +161,42 @@ for (const pluginDirName of pluginDirs) {
     if (openaiEnabled) {
       const openaiRaw = readText(openaiPath);
       if (openaiRaw) {
-        const displayName = extractQuotedString(openaiRaw, "display_name");
-        const shortDescription = extractQuotedString(openaiRaw, "short_description");
-        const defaultPrompt = extractQuotedString(openaiRaw, "default_prompt");
+        const doc = parseYaml(openaiPath, openaiRaw);
+        if (doc && typeof doc === "object") {
+          const iface = doc.interface ?? {};
+          const displayName = iface.display_name;
+          const shortDescription = iface.short_description;
+          const defaultPrompt = iface.default_prompt;
 
-        if (!displayName) fail(openaiPath, "missing interface.display_name");
-        if (!shortDescription) fail(openaiPath, "missing interface.short_description");
-        else if (shortDescription.length < 25 || shortDescription.length > 120) {
-          fail(openaiPath, `interface.short_description length must be 25-120 chars (got ${shortDescription.length})`);
-        }
+          if (typeof displayName !== "string" || !displayName.trim()) {
+            fail(openaiPath, "missing interface.display_name");
+          }
+          if (typeof shortDescription !== "string" || !shortDescription.trim()) {
+            fail(openaiPath, "missing interface.short_description");
+          } else if (shortDescription.length < 25 || shortDescription.length > 120) {
+            fail(openaiPath, `interface.short_description length must be 25-120 chars (got ${shortDescription.length})`);
+          }
 
-        if (!defaultPrompt) fail(openaiPath, "missing interface.default_prompt");
-        else if (!defaultPrompt.includes(`$${skillDirName}`)) {
-          fail(openaiPath, `interface.default_prompt must explicitly mention $${skillDirName}`);
-        }
+          if (typeof defaultPrompt !== "string" || !defaultPrompt.trim()) {
+            fail(openaiPath, "missing interface.default_prompt");
+          } else if (!defaultPrompt.includes(`$${skillDirName}`)) {
+            fail(openaiPath, `interface.default_prompt must explicitly mention $${skillDirName}`);
+          }
 
-        const hasArgoDependency =
-          /^ {4}- type: "mcp"$/m.test(openaiRaw) &&
-          /^ {6}value: "argo"$/m.test(openaiRaw) &&
-          /^ {6}transport: "streamable_http"$/m.test(openaiRaw) &&
-          /^ {6}url: "https:\/\/mcp\.argo\.games\/mcp"$/m.test(openaiRaw);
-        if (!hasArgoDependency) {
-          fail(openaiPath, "must include Argo MCP dependency with streamable_http transport and hosted URL");
+          const tools = doc.dependencies?.tools;
+          const argoDep = Array.isArray(tools)
+            ? tools.find((t) => t && t.type === "mcp" && t.value === "argo")
+            : null;
+          if (!argoDep) {
+            fail(openaiPath, "must declare an MCP dependency with type=mcp and value=argo under dependencies.tools[]");
+          } else {
+            if (argoDep.transport !== "streamable_http") {
+              fail(openaiPath, `Argo dependency transport must be "streamable_http" (got ${JSON.stringify(argoDep.transport)})`);
+            }
+            if (argoDep.url !== "https://mcp.argo.games/mcp") {
+              fail(openaiPath, `Argo dependency url must be "https://mcp.argo.games/mcp" (got ${JSON.stringify(argoDep.url)})`);
+            }
+          }
         }
       }
     }
