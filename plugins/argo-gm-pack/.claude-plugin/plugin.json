@@ -6,8 +6,8 @@
     "name": "Argo RPG Platform",
     "url": "https://argo.games"
   },
-  "homepage": "https://github.com/Argo-RPG-Platform/argo-claude-skills",
-  "repository": "https://github.com/Argo-RPG-Platform/argo-claude-skills",
+  "homepage": "https://github.com/Argo-RPG-Platform/argo-agent-skills",
+  "repository": "https://github.com/Argo-RPG-Platform/argo-agent-skills",
   "license": "MIT",
   "keywords": ["argo", "ttrpg", "vtt", "gm", "mcp"]
 }
