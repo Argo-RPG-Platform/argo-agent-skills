@@ -1,0 +1,5 @@
+This skill is excluded from Claude packaging.
+Presence of this marker file tells the validator and release workflow to skip
+including this skill in Claude marketplace plugins and Claude.ai upload zips.
+Used here because install-argo-mcp-codex is a Codex/ChatGPT-only walkthrough
+and would never trigger usefully inside a Claude client.

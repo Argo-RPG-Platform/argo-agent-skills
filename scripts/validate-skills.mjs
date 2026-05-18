@@ -2,6 +2,11 @@
 // Validates Claude packaging, OpenAI/Codex packaging, and each SKILL.md.
 // Fails CI on missing frontmatter, schema violations, or unknown MCP tool references.
 //
+// Per-skill packaging targets (in plugins/<plugin>/skills/<skill>/):
+//   - Claude: enabled by default; opt out by adding an empty `.claude-disabled` marker file.
+//   - OpenAI/Codex: opt in by adding `agents/openai.yaml`.
+// A skill that opts out of Claude AND has no openai.yaml ships nowhere and fails validation.
+//
 // No dependencies — runs on plain Node >=20.
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -153,11 +158,21 @@ for (const pluginDirName of pluginDirs) {
       fail(skillPath, `description too long (${fm.description.length} chars, max 1024)`);
     }
 
-    // 5. OpenAI/Codex metadata
+    // 5. Determine per-skill targets
     const openaiPath = join(skillDir, "agents", "openai.yaml");
-    if (!existsSync(openaiPath)) {
-      fail(skillDir, "missing agents/openai.yaml");
-    } else {
+    const claudeDisabledPath = join(skillDir, ".claude-disabled");
+    const claudeEnabled = !existsSync(claudeDisabledPath);
+    const openaiEnabled = existsSync(openaiPath);
+
+    if (!claudeEnabled && !openaiEnabled) {
+      fail(
+        skillDir,
+        "ships nowhere: has .claude-disabled but no agents/openai.yaml — add one or the other"
+      );
+    }
+
+    // 6. OpenAI/Codex metadata (only when opted in)
+    if (openaiEnabled) {
       const openaiRaw = readText(openaiPath);
       if (openaiRaw) {
         const displayName = extractQuotedString(openaiRaw, "display_name");
@@ -186,7 +201,7 @@ for (const pluginDirName of pluginDirs) {
       }
     }
 
-    // 6. Shared tool reference validation
+    // 7. Shared tool reference validation
     const referenced = new Set();
     for (const m of body.matchAll(/`([a-z][a-z0-9_]*)`/g)) {
       const tok = m[1];
