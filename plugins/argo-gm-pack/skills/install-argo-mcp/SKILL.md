@@ -51,11 +51,34 @@ If the user is on **VS Code** specifically and prefers a one-click flow, point t
 
 ## Codex path
 
-1. Add the server to Codex MCP config:
+1. Add the hosted Argo MCP server in Codex:
+
+   ```
+   codex mcp add argo --url https://mcp.argo.games/mcp
+   ```
+
+   Or add it directly in Codex MCP config:
 
    ```json
    {
-     "mcpServers": {
+     "mcp_servers": {
+       "argo": { "url": "https://mcp.argo.games/mcp" }
+     }
+   }
+   ```
+
+2. Let Codex walk through OAuth on first connect.
+3. Verify by asking Codex to list campaigns. If connected, it should call `list_campaigns`.
+
+### Codex stdio fallback
+
+If the hosted remote flow is unavailable in the user's environment, fall back to local stdio mode:
+
+1. Add this Codex MCP config:
+
+   ```json
+   {
+     "mcp_servers": {
        "argo": {
          "command": "npx",
          "args": ["-y", "argo-mcp"]
@@ -64,7 +87,7 @@ If the user is on **VS Code** specifically and prefers a one-click flow, point t
    }
    ```
 
-2. If they have not already signed in on this machine, run:
+2. Run:
 
    ```
    npx -y argo-mcp auth login
@@ -73,7 +96,7 @@ If the user is on **VS Code** specifically and prefers a one-click flow, point t
    This prints the Argo consent URL and saves the returned tokens locally after the GM pastes them back.
 
 3. Restart Codex or reload MCP servers if needed.
-4. Verify by asking Codex to list campaigns. If connected, it should call `list_campaigns`.
+4. Verify by asking Codex to list campaigns.
 
 ## ChatGPT path
 
@@ -91,7 +114,8 @@ If the GM is trying to use a different MCP-compatible client, fall back to the A
 ## Troubleshooting
 
 - **OAuth tab didn't open.** Some Linux installs (Flatpak/Snap VS Code) don't register the URL handler. Open the consent URL manually: `https://app.argo.games/oauth2/mcp-connect`.
-- **Codex local auth is asking for tokens.** That is expected for local stdio mode. Run `npx -y argo-mcp auth login` and paste the access token (and refresh token if available) from the Argo consent page.
+- **Codex remote setup did not connect cleanly.** Retry the hosted `codex mcp add argo --url https://mcp.argo.games/mcp` path first. If the user's Codex environment cannot complete that flow, use the Codex stdio fallback above.
+- **Codex local auth is asking for tokens.** That is expected in stdio fallback mode. Run `npx -y argo-mcp auth login` and paste the access token (and refresh token if available) from the Argo consent page.
 - **"Token expired" or 401 from a tool call.** Re-consent at `https://app.argo.games/oauth2/mcp-connect`. The client will pick up the fresh token automatically.
 - **A campaign you expected isn't there.** The GM scoped the grant during consent. Revisit `https://app.argo.games/oauth2/mcp-connect` and add the missing campaigns to the grant.
 - **GM revoked access.** From the campaign's **Integrations** page in the Argo WebApp the GM can revoke at any time. Both access and refresh tokens become invalid immediately; re-consent to reconnect.

@@ -48,8 +48,9 @@ Then run the `install-argo-mcp` skill once (just describe what you want — e.g.
    - the combined `argo-gm-pack-openai-vX.Y.Z.zip` bundle.
 3. Install the extracted skill folder(s) into your OpenAI-compatible skill directory or loader workflow.
 4. Configure the Argo MCP endpoint as needed for your client:
-   - Hosted remote MCP: `https://mcp.argo.games/mcp`
-   - Local stdio clients such as Codex: use the `install-argo-mcp` skill, which walks through `npx -y argo-mcp auth login` plus MCP config.
+   - Codex remote MCP: `codex mcp add argo --url https://mcp.argo.games/mcp`
+   - Hosted remote MCP URL: `https://mcp.argo.games/mcp`
+   - Local stdio fallback: use the `install-argo-mcp` skill, which also documents the `npx -y argo-mcp auth login` fallback path.
 
 The `agents/openai.yaml` files are checked in and released alongside each skill so the same skill content can be consumed by Codex/OpenAI-style loaders without duplicating prompt logic.
 
