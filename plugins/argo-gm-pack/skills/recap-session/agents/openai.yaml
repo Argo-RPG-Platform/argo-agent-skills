@@ -1,0 +1,12 @@
+interface:
+  display_name: "Recap Session"
+  short_description: "Turn raw notes into an Argo session recap and state updates"
+  default_prompt: "Use $recap-session to turn my session notes into an Argo recap and update affected mnemons."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "argo"
+      description: "Argo MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.argo.games/mcp"

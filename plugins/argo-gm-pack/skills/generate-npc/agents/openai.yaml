@@ -1,0 +1,12 @@
+interface:
+  display_name: "Generate NPC"
+  short_description: "Create a campaign-ready NPC and save it into Argo"
+  default_prompt: "Use $generate-npc to create a new NPC for my Argo campaign and wire up its relationships."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "argo"
+      description: "Argo MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.argo.games/mcp"
