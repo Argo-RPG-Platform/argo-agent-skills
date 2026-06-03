@@ -1,3 +1,8 @@
+---
+name: pr-review
+description: Review a GitHub pull request and post a structured review with inline comments via the GitHub MCP. Use when the user says "review this PR", "review PR #<number>", "code review <number>", or provides a GitHub PR URL and asks for a review. Posts findings as inline comments and submits a verdict (APPROVE / REQUEST_CHANGES / COMMENT).
+---
+
 # PR Review
 
 Arguments: "$ARGUMENTS"

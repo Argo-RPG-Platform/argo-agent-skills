@@ -1,3 +1,8 @@
+---
+name: pr-resolve
+description: Resolve open review comments on a GitHub pull request by applying the requested code changes, replying to each thread, and marking threads resolved. Use when the user says "resolve PR comments", "address review feedback on PR #<number>", "fix the review comments on this PR", or similar. Modifies local files and commits — confirms before pushing.
+---
+
 # PR Resolve
 
 Arguments: "$ARGUMENTS"

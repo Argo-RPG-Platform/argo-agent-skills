@@ -1,3 +1,8 @@
+---
+name: pr-resolve-comment
+description: Resolve a single review comment on a GitHub pull request. Reads the comment, confirms the interpretation with the user, applies a targeted code fix, replies to the thread, and marks it resolved. Use when the user says "resolve comment <ID>", "fix this review comment", or provides a direct GitHub comment URL (https://github.com/<owner>/<repo>/pull/<N>#discussion_r<ID>). Modifies one file — confirms before pushing.
+---
+
 # PR Resolve Comment
 
 Arguments: "$ARGUMENTS"

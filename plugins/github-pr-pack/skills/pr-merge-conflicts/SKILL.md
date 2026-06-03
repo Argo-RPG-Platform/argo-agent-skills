@@ -1,3 +1,8 @@
+---
+name: pr-merge-conflicts
+description: Resolve merge conflicts on a GitHub pull request branch. Fetches the latest base branch, identifies conflicting files, auto-resolves additive conflicts (both sides add distinct code), and asks for confirmation on divergent edits before committing and pushing. Use when the user says "resolve merge conflicts on PR #<number>", "fix the conflicts on this branch", "this PR has conflicts", or similar.
+---
+
 # PR Merge Conflicts
 
 Arguments: "$ARGUMENTS"
