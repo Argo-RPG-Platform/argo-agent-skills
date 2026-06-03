@@ -12,14 +12,6 @@
       "version": "0.1.0",
       "category": "ttrpg",
       "tags": ["argo", "ttrpg", "vtt", "gm"]
-    },
-    {
-      "name": "github-pr-pack",
-      "source": "./plugins/github-pr-pack",
-      "description": "GitHub PR workflow skills: review, resolve comments, and merge-conflict resolution. Works with any GitHub repo.",
-      "version": "0.1.0",
-      "category": "dev",
-      "tags": ["argo", "github", "pr", "dev", "code-review"]
     }
   ]
 }
