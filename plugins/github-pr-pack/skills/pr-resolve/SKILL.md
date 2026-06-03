@@ -20,8 +20,8 @@ Resolve open comments on a GitHub pull request by making the requested code chan
 
 3. **Fetch open threads and metadata.** In parallel:
    - `pull_request_read` method `get` — head branch, head SHA, author.
-   - `pull_request_read` method `get_review_comments` — all review threads; extract those with `isResolved: false`.
-   - `pull_request_read` method `get_comments` — general (non-inline) PR-level comments.
+   - `pull_request_read` method **get_review_comments** — all review threads; extract those with `isResolved: false`.
+   - `pull_request_read` method **get_comments** — general (non-inline) PR-level comments.
 
 4. **Triage each comment.** Classify before touching any code:
 
@@ -39,11 +39,11 @@ Resolve open comments on a GitHub pull request by making the requested code chan
    - Record `(commentId, threadId, filePath, changeDescription)` for step 6.
 
 6. **Reply to each addressed comment.**
-   - Call `add_reply_to_pull_request_comment` with a 1–2 sentence body describing the change made.
+   - Call **add_reply_to_pull_request_comment** with a 1–2 sentence body describing the change made.
    - For stale/already-addressed threads, note explicitly that it was already fixed in a prior commit.
 
 7. **Resolve threads.**
-   - Call `pull_request_review_write` method `resolve_thread` with the `threadId` (node ID from `get_review_comments`).
+   - Call `pull_request_review_write` method `resolve_thread` with the `threadId` (node ID from **get_review_comments**).
    - Only resolve threads whose concern is **fully** addressed — leave partial fixes unresolved.
 
 8. **Commit.**

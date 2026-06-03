@@ -18,13 +18,13 @@ Review a GitHub pull request and post findings as a structured review with inlin
 
 2. **Gather PR context.** In parallel:
    - `pull_request_read` method `get` — title, description, author, base branch, head SHA.
-   - `pull_request_read` method `get_diff` — raw unified diff.
-   - `pull_request_read` method `get_files` — changed file list with addition/deletion counts.
-   - `pull_request_read` method `get_check_runs` — CI status of the head commit.
-   - `pull_request_read` method `get_review_comments` — existing review threads (to avoid duplicating).
+   - `pull_request_read` method **get_diff** — raw unified diff.
+   - `pull_request_read` method **get_files** — changed file list with addition/deletion counts.
+   - `pull_request_read` method **get_check_runs** — CI status of the head commit.
+   - `pull_request_read` method **get_review_comments** — existing review threads (to avoid duplicating).
 
 3. **Read full file context.** For each changed file (skip deletions, binary files, and generated/vendored paths):
-   - Call `get_file_contents` with `ref: refs/pull/<PR_NUMBER>/head` and the file path.
+   - Call **get_file_contents** with `ref: refs/pull/<PR_NUMBER>/head` and the file path.
    - Prioritise files with the most net changes; cap at 20 files if the PR is very large.
 
 4. **Analyse the diff.** Evaluate every changed file against:
@@ -40,13 +40,13 @@ Review a GitHub pull request and post findings as a structured review with inlin
    - Call `pull_request_review_write` method `create` — omit the `event` field so the review is pending, not yet submitted.
 
 6. **Post inline comments.**
-   - For each finding that maps to a specific file and line, call `add_comment_to_pending_review`:
+   - For each finding that maps to a specific file and line, call **add_comment_to_pending_review**:
      - `path`: relative file path from repo root.
      - `line`: line number on the relevant side of the diff.
      - `side`: `RIGHT` for new/added code, `LEFT` for removed code.
      - `subjectType`: `LINE` for line-specific issues, `FILE` for file-level concerns.
      - `body`: state the problem → explain why it matters → suggest a fix. Use markdown ` ```suggestion ``` ` blocks for one-line fixes.
-   - Skip findings already covered by an existing thread in `get_review_comments`.
+   - Skip findings already covered by an existing thread in **get_review_comments**.
    - Do not post comments that are pure style preferences not codified in the project docs.
 
 7. **Determine verdict.**

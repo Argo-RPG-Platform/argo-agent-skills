@@ -20,8 +20,8 @@ Arguments: `<PR_NUMBER> <COMMENT_ID>` (uses current repo), or `<owner/repo> <PR_
 
 2. **Fetch the comment.** In parallel:
    - `pull_request_read` method `get` — head branch, head SHA.
-   - `pull_request_read` method `get_review_comments` — all review threads; find the thread whose comments include `COMMENT_ID`. Note the thread's `threadId` (node ID, e.g. `PRRT_kwDO…`) and `isResolved` status.
-   - If not found in review threads, try `pull_request_read` method `get_comments` (general PR comments).
+   - `pull_request_read` method **get_review_comments** — all review threads; find the thread whose comments include `COMMENT_ID`. Note the thread's `threadId` (node ID, e.g. `PRRT_kwDO…`) and `isResolved` status.
+   - If not found in review threads, try `pull_request_read` method **get_comments** (general PR comments).
 
 3. **Display the comment to the user.** Show:
    - Author, file path, line number (if inline), and the full comment body.
@@ -34,7 +34,7 @@ Arguments: `<PR_NUMBER> <COMMENT_ID>` (uses current repo), or `<owner/repo> <PR_
    - If not on the PR branch, ask the user to confirm before running `gh pr checkout <PR_NUMBER>`.
 
 5. **Read the target file.**
-   - Call `get_file_contents` with `ref: refs/pull/<PR_NUMBER>/head` and the comment's file path for the version the comment was made on.
+   - Call **get_file_contents** with `ref: refs/pull/<PR_NUMBER>/head` and the comment's file path for the version the comment was made on.
    - Also `Read` the current working-tree version of the file to understand live state.
 
 6. **Confirm the interpretation.**
@@ -47,7 +47,7 @@ Arguments: `<PR_NUMBER> <COMMENT_ID>` (uses current repo), or `<owner/repo> <PR_
    - Do not refactor, rename, or change anything outside the scope of this comment.
 
 8. **Reply to the comment.**
-   - Call `add_reply_to_pull_request_comment` with a 1–2 sentence body describing what was changed.
+   - Call **add_reply_to_pull_request_comment** with a 1–2 sentence body describing what was changed.
 
 9. **Resolve the thread.**
    - Call `pull_request_review_write` method `resolve_thread` with the `threadId`.
