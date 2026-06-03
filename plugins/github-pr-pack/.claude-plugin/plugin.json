@@ -1,0 +1,13 @@
+{
+  "name": "github-pr-pack",
+  "version": "0.1.0",
+  "description": "GitHub PR workflow skills: review, resolve comments, resolve single comment, and merge-conflict resolution.",
+  "author": {
+    "name": "Argo RPG Platform",
+    "url": "https://argo.games"
+  },
+  "homepage": "https://github.com/Argo-RPG-Platform/argo-agent-skills",
+  "repository": "https://github.com/Argo-RPG-Platform/argo-agent-skills",
+  "license": "MIT",
+  "keywords": ["argo", "github", "pr", "dev", "code-review"]
+}
